@@ -26,14 +26,14 @@ func GetUsers(c echo.Context) error {
 	if id != "" {
 		result, err := query.GetUsersById(id)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+			return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
 		}
 
 		return c.JSON(http.StatusOK, result)
 	}
 	result, err := query.GetAllUsers()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, result)

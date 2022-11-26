@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"hutanku-service/config"
@@ -12,7 +13,7 @@ import (
 
 func GetUsersById(id string) (models.Response, error) {
 	var res models.Response
-	var product models.Users
+	var users models.Users
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	db, err := config.Connect()
 	if err != nil {
@@ -23,13 +24,13 @@ func GetUsersById(id string) (models.Response, error) {
 
 	objId, _ := primitive.ObjectIDFromHex(id)
 
-	if err := db.Collection("users").FindOne(ctx, bson.M{"_id": objId}).Decode(&product); err != nil {
+	if err := db.Collection("users").FindOne(ctx, bson.M{"_id": objId}).Decode(&users); err != nil {
 		return res, err
 	}
 
 	res.Status = http.StatusOK
 	res.Message = "Get data success"
-	res.Data = product
+	res.Data = users
 
 	return res, nil
 }
@@ -49,9 +50,16 @@ func GetAllUsers() (models.Response, error) {
 		return res, err
 	}
 	var dataFinal []bson.M
-	if err = data.All(ctx, &dataFinal); err != nil {
+	if err := data.All(ctx, &dataFinal); err != nil {
 		return res, err
 	}
+
+	if len(dataFinal) == 0 {
+		err = errors.New("no documents in result")
+
+		return res, err
+	}
+
 	res.Status = http.StatusOK
 	res.Message = "Get data success"
 	res.Data = dataFinal

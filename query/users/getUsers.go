@@ -35,13 +35,11 @@ func GetUsersById(id string) (models.Response, error) {
 	KKdecrypt := helper.Decrypt([]byte(users.KK), secret)
 	PhoneNumberDecrypt := helper.Decrypt([]byte(users.PhoneNumber), secret)
 	AlamatDecrypt := helper.Decrypt([]byte(users.Alamat), secret)
-	EmailDecrypt := helper.Decrypt([]byte(users.Email), secret)
 
 	users.NIK = string(NIKdecrypt)
 	users.KK = string(KKdecrypt)
 	users.PhoneNumber = string(PhoneNumberDecrypt)
 	users.Alamat = string(AlamatDecrypt)
-	users.Email = string(EmailDecrypt)
 
 	res.Status = http.StatusOK
 	res.Message = "Get data success"
@@ -80,13 +78,11 @@ func GetAllUsers() (models.Response, error) {
 		KK := fmt.Sprintf("%v", dataFinal[i]["kk"])
 		Phone := fmt.Sprintf("%v", dataFinal[i]["phoneNumber"])
 		Alamat := fmt.Sprintf("%v", dataFinal[i]["alamat"])
-		Email := fmt.Sprintf("%v", dataFinal[i]["email"])
 
 		dataFinal[i]["nik"] = string(helper.Decrypt([]byte(NIK), secret))
 		dataFinal[i]["kk"] = string(helper.Decrypt([]byte(KK), secret))
 		dataFinal[i]["phoneNumber"] = string(helper.Decrypt([]byte(Phone), secret))
 		dataFinal[i]["alamat"] = string(helper.Decrypt([]byte(Alamat), secret))
-		dataFinal[i]["email"] = string(helper.Decrypt([]byte(Email), secret))
 	}
 
 	res.Status = http.StatusOK

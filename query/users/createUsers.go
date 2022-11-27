@@ -27,12 +27,11 @@ func CreateUsers(reqBody models.Users) (models.Response, error) {
 	KkEncrypted := helper.Encrypt([]byte(reqBody.KK), secret)
 	PhoneNumberEncrypted := helper.Encrypt([]byte(reqBody.PhoneNumber), secret)
 	AlamatEncrypted := helper.Encrypt([]byte(reqBody.Alamat), secret)
-	EmailEncrypted := helper.Encrypt([]byte(reqBody.Email), secret)
 
 	data, err := db.Collection("users").InsertOne(ctx, models.Users{
 		FullName:     reqBody.FullName,
 		NomorAnggota: reqBody.NomorAnggota,
-		Email:        string(EmailEncrypted),
+		Email:        reqBody.Email,
 		Password:     passwordHashed,
 		PhoneNumber:  string(PhoneNumberEncrypted),
 		Dusun:        reqBody.Dusun,

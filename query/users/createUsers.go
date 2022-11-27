@@ -3,9 +3,11 @@ package query
 import (
 	"context"
 	"hutanku-service/config"
+	helper "hutanku-service/helpers"
 	"hutanku-service/models"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -19,12 +21,20 @@ func CreateUsers(reqBody models.Users) (models.Response, error) {
 	}
 	defer cancel()
 
+	secret := os.Getenv("RAHASIA_NEGARA")
+	passwordHashed, _ := helper.HashPassword(reqBody.Password)
+	NikEncrypted := helper.Encrypt([]byte(reqBody.NIK), secret)
+	KkEncrypted := helper.Encrypt([]byte(reqBody.KK), secret)
+	PhoneNumberEncrypted := helper.Encrypt([]byte(reqBody.PhoneNumber), secret)
+	AlamatEncrypted := helper.Encrypt([]byte(reqBody.Alamat), secret)
+	EmailEncrypted := helper.Encrypt([]byte(reqBody.Email), secret)
+
 	data, err := db.Collection("users").InsertOne(ctx, models.Users{
 		FullName:     reqBody.FullName,
 		NomorAnggota: reqBody.NomorAnggota,
-		Email:        reqBody.Email,
-		Password:     reqBody.Password,
-		PhoneNumber:  reqBody.PhoneNumber,
+		Email:        string(EmailEncrypted),
+		Password:     passwordHashed,
+		PhoneNumber:  string(PhoneNumberEncrypted),
 		Dusun:        reqBody.Dusun,
 		Desa:         reqBody.Desa,
 		RT:           reqBody.RT,
@@ -33,9 +43,9 @@ func CreateUsers(reqBody models.Users) (models.Response, error) {
 		Kabupaten:    reqBody.Kabupaten,
 		Kelurahan:    reqBody.Kelurahan,
 		Kota:         reqBody.Kota,
-		Alamat:       reqBody.Alamat,
-		NIK:          reqBody.NIK,
-		KK:           reqBody.KK,
+		Alamat:       string(AlamatEncrypted),
+		NIK:          string(NikEncrypted),
+		KK:           string(KkEncrypted),
 		Province:     reqBody.Province,
 		Pokja:        reqBody.Pokja,
 	})

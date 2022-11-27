@@ -3,11 +3,14 @@ package query
 import (
 	"context"
 	"errors"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"hutanku-service/config"
+	helper "hutanku-service/helpers"
 	"hutanku-service/models"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -27,6 +30,18 @@ func GetUsersById(id string) (models.Response, error) {
 	if err := db.Collection("users").FindOne(ctx, bson.M{"_id": objId}).Decode(&users); err != nil {
 		return res, err
 	}
+	secret := os.Getenv("RAHASIA_NEGARA")
+	NIKdecrypt := helper.Decrypt([]byte(users.NIK), secret)
+	KKdecrypt := helper.Decrypt([]byte(users.KK), secret)
+	PhoneNumberDecrypt := helper.Decrypt([]byte(users.PhoneNumber), secret)
+	AlamatDecrypt := helper.Decrypt([]byte(users.Alamat), secret)
+	EmailDecrypt := helper.Decrypt([]byte(users.Email), secret)
+
+	users.NIK = string(NIKdecrypt)
+	users.KK = string(KKdecrypt)
+	users.PhoneNumber = string(PhoneNumberDecrypt)
+	users.Alamat = string(AlamatDecrypt)
+	users.Email = string(EmailDecrypt)
 
 	res.Status = http.StatusOK
 	res.Message = "Get data success"
@@ -56,8 +71,22 @@ func GetAllUsers() (models.Response, error) {
 
 	if len(dataFinal) == 0 {
 		err = errors.New("no documents in result")
-
 		return res, err
+	}
+
+	for i := 0; i < len(dataFinal); i++ {
+		secret := os.Getenv("RAHASIA_NEGARA")
+		NIK := fmt.Sprintf("%v", dataFinal[i]["nik"])
+		KK := fmt.Sprintf("%v", dataFinal[i]["kk"])
+		Phone := fmt.Sprintf("%v", dataFinal[i]["phoneNumber"])
+		Alamat := fmt.Sprintf("%v", dataFinal[i]["alamat"])
+		Email := fmt.Sprintf("%v", dataFinal[i]["email"])
+
+		dataFinal[i]["nik"] = string(helper.Decrypt([]byte(NIK), secret))
+		dataFinal[i]["kk"] = string(helper.Decrypt([]byte(KK), secret))
+		dataFinal[i]["phoneNumber"] = string(helper.Decrypt([]byte(Phone), secret))
+		dataFinal[i]["alamat"] = string(helper.Decrypt([]byte(Alamat), secret))
+		dataFinal[i]["email"] = string(helper.Decrypt([]byte(Email), secret))
 	}
 
 	res.Status = http.StatusOK

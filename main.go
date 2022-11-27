@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/labstack/echo/v4"
 	"hutanku-service/config"
-	routes "hutanku-service/routes/users"
+	routes "hutanku-service/routes"
 	"log"
 	"net/http"
 )

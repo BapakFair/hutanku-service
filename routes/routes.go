@@ -16,7 +16,8 @@ func Init() *echo.Echo {
 		return c.String(http.StatusOK, "Hallo this is hutanku")
 	})
 	e.GET("/api/users", user.GetUsers, middleware.IsAuthenticated)
-	e.POST("/api/user", user.CreateUsers)
+	e.POST("/api/user", user.CreateUsers, middleware.IsAuthenticated)
+	e.PUT("/api/user/update", user.UpdateUsers)
 
 	e.POST("/api/login", login.Login)
 

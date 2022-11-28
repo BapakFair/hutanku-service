@@ -31,15 +31,11 @@ func GetUsersById(id string) (models.Response, error) {
 		return res, err
 	}
 	secret := os.Getenv("RAHASIA_NEGARA")
-	NIKdecrypt := helper.Decrypt([]byte(users.NIK), secret)
-	KKdecrypt := helper.Decrypt([]byte(users.KK), secret)
-	PhoneNumberDecrypt := helper.Decrypt([]byte(users.PhoneNumber), secret)
-	AlamatDecrypt := helper.Decrypt([]byte(users.Alamat), secret)
 
-	users.NIK = string(NIKdecrypt)
-	users.KK = string(KKdecrypt)
-	users.PhoneNumber = string(PhoneNumberDecrypt)
-	users.Alamat = string(AlamatDecrypt)
+	users.NIK = string(helper.Decrypt([]byte(users.NIK), secret))
+	users.KK = string(helper.Decrypt([]byte(users.KK), secret))
+	users.PhoneNumber = string(helper.Decrypt([]byte(users.PhoneNumber), secret))
+	users.Alamat = string(helper.Decrypt([]byte(users.Alamat), secret))
 
 	res.Status = http.StatusOK
 	res.Message = "Get data success"

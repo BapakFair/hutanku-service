@@ -18,6 +18,7 @@ func Init() *echo.Echo {
 	e.GET("/api/users", user.GetUsers, middleware.IsAuthenticated)
 	e.POST("/api/user", user.CreateUsers, middleware.IsAuthenticated)
 	e.PUT("/api/user/update", user.UpdateUsers)
+	e.POST("/api/user/forgot", user.ForgotPasswordUsers)
 
 	e.POST("/api/login", login.Login)
 

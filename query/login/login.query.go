@@ -43,6 +43,7 @@ func CheckLogin(email, password string) (models.Response, error) {
 	claims["email"] = user.Email
 	claims["role"] = user.Role
 	claims["id"] = user.ID
+	claims["nomorAnggota"] = user.NomorAnggota
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
 	envErr := godotenv.Load()

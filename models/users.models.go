@@ -25,4 +25,10 @@ type Users struct {
 	Province     string             `json:"province" bson:"province"`
 	Pokja        string             `json:"pokja" bson:"pokja"`
 	Role         int                `json:"role" bson:"role"`
+	ResetToken   string             `json:"resetToken" bson:"resetToken"`
+}
+
+type QueryGetUsers struct {
+	ID           string `json:"id" bson:"id"`
+	NomorAnggota string `json:"nomorAnggota" bson:"nomorAnggota"`
 }

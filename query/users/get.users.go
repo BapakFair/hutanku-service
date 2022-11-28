@@ -11,6 +11,7 @@ import (
 	"hutanku-service/models"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -84,6 +85,34 @@ func GetAllUsers() (models.Response, error) {
 	res.Status = http.StatusOK
 	res.Message = "Get data success"
 	res.Data = dataFinal
+
+	return res, nil
+}
+
+func GetUserByNoAnggota(nomorAnggota string) (models.Response, error) {
+	var res models.Response
+	var users models.Users
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	db, err := config.Connect()
+	if err != nil {
+		return res, err
+	}
+
+	defer cancel()
+	nomorAnggotaInt, _ := strconv.Atoi(nomorAnggota)
+	if err := db.Collection("users").FindOne(ctx, bson.M{"nomorAnggota": nomorAnggotaInt}).Decode(&users); err != nil {
+		return res, err
+	}
+	secret := os.Getenv("RAHASIA_NEGARA")
+
+	users.NIK = string(helper.Decrypt([]byte(users.NIK), secret))
+	users.KK = string(helper.Decrypt([]byte(users.KK), secret))
+	users.PhoneNumber = string(helper.Decrypt([]byte(users.PhoneNumber), secret))
+	users.Alamat = string(helper.Decrypt([]byte(users.Alamat), secret))
+
+	res.Status = http.StatusOK
+	res.Message = "Get data success"
+	res.Data = users
 
 	return res, nil
 }

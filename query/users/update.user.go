@@ -32,25 +32,26 @@ func UpdateUsers(id string, reqBody models.Users) (models.Response, error) {
 	AlamatEncrypted := helper.Encrypt([]byte(reqBody.Alamat), secret)
 
 	objId, _ := primitive.ObjectIDFromHex(id)
+
 	filter := bson.M{"_id": objId}
 	update := bson.M{
 		"$set": bson.M{
-			"FullName":     reqBody.FullName,
-			"NomorAnggota": reqBody.NomorAnggota,
-			"PhoneNumber":  string(PhoneNumberEncrypted),
-			"Dusun":        reqBody.Dusun,
-			"Desa":         reqBody.Desa,
-			"RT":           reqBody.RT,
-			"RW":           reqBody.RW,
-			"Kecamatan":    reqBody.Kecamatan,
-			"Kabupaten":    reqBody.Kabupaten,
-			"Kelurahan":    reqBody.Kelurahan,
-			"Kota":         reqBody.Kota,
-			"Alamat":       string(AlamatEncrypted),
-			"NIK":          string(NikEncrypted),
-			"KK":           string(KkEncrypted),
-			"Province":     reqBody.Province,
-			"Pokja":        reqBody.Pokja,
+			"fullName":     reqBody.FullName,
+			"nomorAnggota": reqBody.NomorAnggota,
+			"phoneNumber":  string(PhoneNumberEncrypted),
+			"dusun":        reqBody.Dusun,
+			"desa":         reqBody.Desa,
+			"rt":           reqBody.RT,
+			"rw":           reqBody.RW,
+			"kecamatan":    reqBody.Kecamatan,
+			"kabupaten":    reqBody.Kabupaten,
+			"kelurahan":    reqBody.Kelurahan,
+			"kota":         reqBody.Kota,
+			"alamat":       string(AlamatEncrypted),
+			"nik":          string(NikEncrypted),
+			"kk":           string(KkEncrypted),
+			"province":     reqBody.Province,
+			"pokja":        reqBody.Pokja,
 		},
 	}
 
@@ -59,9 +60,9 @@ func UpdateUsers(id string, reqBody models.Users) (models.Response, error) {
 		log.Fatal(err.Error())
 	}
 
-	res.Status = http.StatusCreated
-	res.Message = "Insert data success"
-	res.Data = result
+	res.Status = http.StatusOK
+	res.Message = "Updated data success"
+	res.Data = result.ModifiedCount
 
 	return res, nil
 }

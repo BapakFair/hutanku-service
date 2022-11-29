@@ -32,3 +32,9 @@ type QueryGetUsers struct {
 	ID           string `json:"id" bson:"id"`
 	NomorAnggota string `json:"nomorAnggota" bson:"nomorAnggota"`
 }
+
+type ResetPassword struct {
+	Token              string `json:"token" bson:"token"`
+	NewPassword        string `json:"newPassword" bson:"newPassword"`
+	NewPasswordConfirm string `json:"newPasswordConfirm" bson:"newPasswordConfirm"`
+}

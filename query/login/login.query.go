@@ -10,7 +10,6 @@ import (
 	helper "hutanku-service/helpers"
 	"hutanku-service/models"
 	"log"
-	"net/http"
 	"os"
 	"time"
 )
@@ -57,7 +56,6 @@ func CheckLogin(email, password string) (models.Response, error) {
 		return res, err
 	}
 
-	res.Status = http.StatusOK
 	res.Message = "login success"
 	res.Data = t
 

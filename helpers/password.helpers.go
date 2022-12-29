@@ -1,6 +1,8 @@
 package helper
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"golang.org/x/crypto/bcrypt"
+)
 
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -14,3 +16,8 @@ func CheckPasswordHash(password, hash string) (bool, error) {
 	}
 	return true, nil
 }
+
+//func SetHashForNewUser(id string) error {
+//	userData, _ = db.co
+//
+//}

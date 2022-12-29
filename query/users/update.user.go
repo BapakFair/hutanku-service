@@ -8,7 +8,6 @@ import (
 	helper "hutanku-service/helpers"
 	"hutanku-service/models"
 	"log"
-	"net/http"
 	"os"
 	"time"
 )
@@ -60,7 +59,6 @@ func UpdateUsers(id string, reqBody models.Users) (models.Response, error) {
 		log.Fatal(err.Error())
 	}
 
-	res.Status = http.StatusOK
 	res.Message = "Updated data success"
 	res.Data = result.ModifiedCount
 

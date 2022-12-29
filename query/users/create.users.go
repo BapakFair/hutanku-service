@@ -5,8 +5,6 @@ import (
 	"hutanku-service/config"
 	helper "hutanku-service/helpers"
 	"hutanku-service/models"
-	"log"
-	"net/http"
 	"os"
 	"time"
 )
@@ -17,7 +15,7 @@ func CreateUsers(reqBody models.Users) (models.Response, error) {
 
 	db, err := config.Connect()
 	if err != nil {
-		log.Fatal(err.Error())
+		return res, err
 	}
 	defer cancel()
 
@@ -49,10 +47,9 @@ func CreateUsers(reqBody models.Users) (models.Response, error) {
 		Pokja:        reqBody.Pokja,
 	})
 	if err != nil {
-		log.Fatal(err.Error())
+		return res, err
 	}
 
-	res.Status = http.StatusCreated
 	res.Message = "Insert data success"
 	res.Data = data
 

@@ -32,5 +32,5 @@ func Connect() (*mongo.Database, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return client.Database("Cluster0"), nil
+	return client.Database("hutanku"), nil
 }

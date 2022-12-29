@@ -10,7 +10,6 @@ import (
 	helper "hutanku-service/helpers"
 	"hutanku-service/models"
 	"log"
-	"net/http"
 	"os"
 	"time"
 )
@@ -63,7 +62,6 @@ func ForgotPassword(reqBody models.Users) (models.Response, error) {
 	fmt.Printf("ID: %s Resp: %s\n", id, resp)
 	// =================================================
 
-	res.Status = http.StatusOK
 	res.Message = "Please Check Your Email"
 	res.Data = result.ModifiedCount
 
@@ -129,7 +127,6 @@ func ResetPassword(reqBody models.ResetPassword) (models.Response, error) {
 	fmt.Printf("ID: %s Resp: %s\n", id, resp)
 	// =================================================
 
-	res.Status = http.StatusOK
 	res.Message = "Please Check Your Email"
 	res.Data = result.ModifiedCount
 

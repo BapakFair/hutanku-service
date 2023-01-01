@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/labstack/echo/v4"
 	"github.com/mailgun/mailgun-go/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"hutanku-service/config"
@@ -14,8 +15,12 @@ import (
 	"time"
 )
 
-func ForgotPassword(reqBody models.Users) (models.Response, error) {
+func ForgotPassword(c echo.Context) (models.Response, error) {
 	var res models.Response
+	var reqBody models.Users
+	if err := c.Bind(&reqBody); err != nil {
+		log.Fatal(err.Error())
+	}
 
 	// set config mailgun
 	privateApi := os.Getenv("API_KEY_MAILGUN")
@@ -68,9 +73,13 @@ func ForgotPassword(reqBody models.Users) (models.Response, error) {
 	return res, nil
 }
 
-func ResetPassword(reqBody models.ResetPassword) (models.Response, error) {
+func ResetPassword(c echo.Context) (models.Response, error) {
 	var res models.Response
 	var users models.Users
+	var reqBody models.ResetPassword
+	if err := c.Bind(&reqBody); err != nil {
+		log.Fatal(err.Error())
+	}
 
 	// set config mailgun
 	privateApi := os.Getenv("API_KEY_MAILGUN")

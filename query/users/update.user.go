@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"hutanku-service/config"
@@ -12,8 +13,13 @@ import (
 	"time"
 )
 
-func UpdateUsers(id string, reqBody models.Users) (models.Response, error) {
+func UpdateUsers(c echo.Context) (models.Response, error) {
 	var res models.Response
+	id := c.QueryParam("id")
+	var reqBody models.Users
+	if err := c.Bind(&reqBody); err != nil {
+		log.Fatal(err.Error())
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 

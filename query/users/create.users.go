@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"github.com/labstack/echo/v4"
 	"hutanku-service/config"
 	helper "hutanku-service/helpers"
 	"hutanku-service/models"
@@ -9,8 +10,12 @@ import (
 	"time"
 )
 
-func CreateUsers(reqBody models.Users) (models.Response, error) {
+func CreateUsers(c echo.Context) (models.Response, error) {
 	var res models.Response
+	var reqBody models.Users
+	if err := c.Bind(&reqBody); err != nil {
+		return res, err
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 	db, err := config.Connect()

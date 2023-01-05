@@ -7,10 +7,12 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"hutanku-service/config"
 	helper "hutanku-service/helpers"
 	"hutanku-service/models"
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -85,10 +87,10 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 	if err != nil {
 		return res, err
 	}
-	totalDataCount := (int(totalData) / perPage)
-	if totalDataCount%1 != 0 {
-		totalDataCount = totalDataCount + 1
-	}
+	//totalDataCount := int(totalData) / perPage
+	//if totalDataCount%1 != 0 {
+	//	totalDataCount = totalDataCount + 1
+	//}
 	// this line of code below to manual hash nik & kk data from string to hashed vice versa =======================
 	// don't forget to change context timeout 120 second per 1000 data
 	//err = helper.EncryptNikKk(dataFinal, ctx)
@@ -106,15 +108,51 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 		//Phone := fmt.Sprintf("%v", dataFinal[i]["phoneNumber"])
 		//Alamat := fmt.Sprintf("%v", dataFinal[i]["alamat"])
 
+		// menghitung jumlah petak yang dimiliki anggota =============
+		jumlahPetakUser, err := db.Collection("petak").CountDocuments(ctx, bson.M{
+			"pokja":  dataFinal[i]["pokja"],
+			"userId": dataFinal[i]["_id"],
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+		// ============================================================
+
+		// menghitung total luas lahan garapan ========================
+		matchStage := bson.D{
+			{"$match", bson.D{
+				{"userId", dataFinal[i]["_id"]},
+			}},
+		}
+		groupStage := bson.D{
+			{"$group", bson.D{
+				{"_id", "$pokja"},
+				{"luasLahan", bson.D{
+					{"$sum", "$luasLahan"},
+				}},
+			}},
+		}
+		cursor, err := db.Collection("petak").Aggregate(ctx, mongo.Pipeline{matchStage, groupStage})
+		if err != nil {
+			log.Fatal(err)
+		}
+		var results []bson.M
+		if err = cursor.All(context.TODO(), &results); err != nil {
+			panic(err)
+		}
+
+		// =============================================================
 		dataFinal[i]["nik"] = string(helper.Decrypt([]byte(NIK), secret))
 		dataFinal[i]["kk"] = string(helper.Decrypt([]byte(KK), secret))
+		dataFinal[i]["jumlahPetak"] = jumlahPetakUser
+		dataFinal[i]["totalLahanGarapan"] = results[0]["luasLahan"]
 		//dataFinal[i]["phoneNumber"] = string(helper.Decrypt([]byte(Phone), secret))
 		//dataFinal[i]["alamat"] = string(helper.Decrypt([]byte(Alamat), secret))
 	}
 	res.Message = "Get data success"
 	res.Data = dataFinal
 	res.Page = page
-	res.TotalPage = totalDataCount
+	res.TotalData = int(totalData)
 
 	return res, nil
 }

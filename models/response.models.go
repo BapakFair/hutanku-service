@@ -9,5 +9,5 @@ type ResponseWithPagination struct {
 	Message   string      `json:"message" bson:"message"`
 	Data      interface{} `json:"data" bson:"data"`
 	Page      int         `json:"page" bson:"page"`
-	TotalPage int         `json:"totalPage" bson:"totalPage"`
+	TotalData int         `json:"totalData" bson:"totalData"`
 }

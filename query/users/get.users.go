@@ -16,34 +16,6 @@ import (
 	"time"
 )
 
-func GetUsersById(id string) (models.Response, error) {
-	var res models.Response
-	var users models.Users
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	db, err := config.Connect()
-	if err != nil {
-		return res, err
-	}
-
-	objId, _ := primitive.ObjectIDFromHex(id)
-
-	if err := db.Collection("users").FindOne(ctx, bson.M{"_id": objId}).Decode(&users); err != nil {
-		return res, err
-	}
-	secret := os.Getenv("RAHASIA_NEGARA")
-
-	users.NIK = string(helper.Decrypt([]byte(users.NIK), secret))
-	users.KK = string(helper.Decrypt([]byte(users.KK), secret))
-	users.PhoneNumber = string(helper.Decrypt([]byte(users.PhoneNumber), secret))
-	users.Alamat = string(helper.Decrypt([]byte(users.Alamat), secret))
-
-	res.Message = "Get data success"
-	res.Data = users
-
-	return res, nil
-}
-
 // get users by query string "_id", "pokja", "fullName", "nomorAnggota".
 func GetUsers(c echo.Context) (models.Response, error) {
 	var res models.Response
@@ -61,7 +33,7 @@ func GetUsers(c echo.Context) (models.Response, error) {
 	perPage, _ := strconv.Atoi(c.QueryParam("perPage"))
 	findOptions.SetSkip((int64(page) - 1) * int64(perPage))
 	findOptions.SetLimit(int64(perPage))
-	//findOptions.SetProjection(bson.M{"_id": 1})
+	//findOptions.SetProjection(bson.M{"_id": 1, "pokja": 1})
 
 	if q := c.QueryParam("q"); q != "" {
 		objId, _ := primitive.ObjectIDFromHex(q)
@@ -109,37 +81,16 @@ func GetUsers(c echo.Context) (models.Response, error) {
 		return res, err
 	}
 
-	// this line of code below to manual hash nik & kk data from string to hashed =======================
+	// this line of code below to manual hash nik & kk data from string to hashed vice versa =======================
 	// don't forget to change context timeout 120 second per 1000 data
-	//secret := os.Getenv("RAHASIA_NEGARA")
-	//for i := 0; i < len(dataFinal); i++ {
-	//	objId, _ := dataFinal[i]["_id"].(primitive.ObjectID)
-	//	findOption := options.Find()
-	//	findOption.SetProjection(bson.M{
-	//		"nik": 1,
-	//		"kk":  1,
-	//	})
-	//	var dataReadyUpdate []bson.M
-	//	dataPerUser, _ := db.Collection("users").Find(ctx, bson.M{"_id": objId}, findOption)
-	//	if err := dataPerUser.All(ctx, &dataReadyUpdate); err != nil {
-	//		return res, err
-	//	}
-	//	dataNik := dataReadyUpdate[0]["nik"].(string)
-	//	dataKk := dataReadyUpdate[0]["kk"].(string)
-	//	if len(dataNik) == 16 && len(dataKk) == 16 {
-	//		NIKhashed := helper.Encrypt([]byte(dataNik), secret)
-	//		KKhashed := helper.Encrypt([]byte(dataKk), secret)
-	//		filter := bson.M{"_id": objId}
-	//		update := bson.M{
-	//			"$set": bson.M{
-	//				"nik": string(NIKhashed),
-	//				"kk":  string(KKhashed),
-	//			},
-	//		}
-	//		db.Collection("users").UpdateOne(ctx, filter, update)
-	//	}
-	// =============================================================================================
-	//fmt.Println("ini data test :", "data ke :", i)
+	//err = helper.EncryptNikKk(dataFinal, ctx)
+	//err = helper.DecryptNikKk(dataFinal, ctx)
+	//err = helper.UpdateIdUserToPetak(dataFinal, ctx)
+	//if err != nil {
+	//	return models.Response{}, err
+	//}
+	// ==================================================================================================
+
 	for i := 0; i < len(dataFinal); i++ {
 		secret := os.Getenv("RAHASIA_NEGARA")
 		NIK := fmt.Sprintf("%v", dataFinal[i]["nik"])

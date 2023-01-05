@@ -16,8 +16,3 @@ func CheckPasswordHash(password, hash string) (bool, error) {
 	}
 	return true, nil
 }
-
-//func SetHashForNewUser(id string) error {
-//	userData, _ = db.co
-//
-//}

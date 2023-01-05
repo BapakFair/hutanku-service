@@ -3,6 +3,8 @@ package routes
 import (
 	"github.com/labstack/echo/v4"
 	"hutanku-service/middleware"
+	routesAdm "hutanku-service/routes/adm"
+	routesDashboard "hutanku-service/routes/dashboard"
 	routesLogin "hutanku-service/routes/login"
 	routesUsers "hutanku-service/routes/users"
 
@@ -22,6 +24,8 @@ func Init() *echo.Echo {
 	})
 	routesUsers.UserRoutes(e)
 	routesLogin.LoginRoute(e)
+	routesAdm.AdmRoutes(e)
+	routesDashboard.DashboardAdminRoutes(e)
 
 	return e
 }

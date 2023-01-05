@@ -85,10 +85,10 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 	if err != nil {
 		return res, err
 	}
-	totalDataCount := (int(totalData) / perPage) + 1
-	//if totalDataCount % 1 {
-	//	totalDataCount = 1
-	//}
+	totalDataCount := (int(totalData) / perPage)
+	if totalDataCount%1 != 0 {
+		totalDataCount = totalDataCount + 1
+	}
 	// this line of code below to manual hash nik & kk data from string to hashed vice versa =======================
 	// don't forget to change context timeout 120 second per 1000 data
 	//err = helper.EncryptNikKk(dataFinal, ctx)

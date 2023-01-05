@@ -17,8 +17,8 @@ import (
 )
 
 // get users by query string "_id", "pokja", "fullName", "nomorAnggota".
-func GetUsers(c echo.Context) (models.Response, error) {
-	var res models.Response
+func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
+	var res models.ResponseWithPagination
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	db, err := config.Connect()
 	if err != nil {
@@ -81,6 +81,14 @@ func GetUsers(c echo.Context) (models.Response, error) {
 		return res, err
 	}
 
+	totalData, err := db.Collection("users").CountDocuments(ctx, filter)
+	if err != nil {
+		return res, err
+	}
+	totalDataCount := (int(totalData) / perPage) + 1
+	//if totalDataCount % 1 {
+	//	totalDataCount = 1
+	//}
 	// this line of code below to manual hash nik & kk data from string to hashed vice versa =======================
 	// don't forget to change context timeout 120 second per 1000 data
 	//err = helper.EncryptNikKk(dataFinal, ctx)
@@ -105,6 +113,8 @@ func GetUsers(c echo.Context) (models.Response, error) {
 	}
 	res.Message = "Get data success"
 	res.Data = dataFinal
+	res.Page = page
+	res.TotalPage = totalDataCount
 
 	return res, nil
 }

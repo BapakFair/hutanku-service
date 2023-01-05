@@ -96,12 +96,13 @@ func UpdateIdUserToPetak(dataFinal []bson.M, ctx context.Context) error {
 	}
 
 	for i := 0; i < len(dataFinal); i++ {
-		//objId, _ := dataFinal[i]["_id"].(primitive.ObjectID)
+		objId, _ := dataFinal[i]["_id"].(primitive.ObjectID)
 
 		filter := bson.M{
-			"email": bson.M{"$exists": false},
-			//"nik":      dataFinal[i]["nik"],
-			//"kk":       dataFinal[i]["kk"],
+			//"email": bson.M{"$exists": false},
+			"_id": objId,
+			"nik": dataFinal[i]["nik"],
+			"kk":  dataFinal[i]["kk"],
 		}
 		update := bson.M{
 			"$set": bson.M{
@@ -114,7 +115,7 @@ func UpdateIdUserToPetak(dataFinal []bson.M, ctx context.Context) error {
 			//},
 		}
 
-		updated, err := db.Collection("users").UpdateMany(ctx, filter, update)
+		updated, err := db.Collection("petak").UpdateMany(ctx, filter, update)
 		if err != nil {
 			return err
 		}

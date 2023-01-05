@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -95,12 +96,31 @@ func GetHeaderDashboardData(c echo.Context) (models.Response, error) {
 			panic(err)
 		}
 
+		jumlahPetakPokja, err := db.Collection("petak").Distinct(ctx, "petak", bson.M{"pokja": jumlahPokja[i]})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		jumlahAndilPokja, err := db.Collection("petak").Distinct(ctx, "andil", bson.M{"pokja": jumlahPokja[i]})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		jumlahKaryawanPokja, err := db.Collection("users").CountDocuments(ctx, bson.M{"pokja": jumlahPokja[i], "role": 11})
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("ini isinya jumlah karyawan", jumlahKaryawanPokja)
 		jumlahAnggotaPokjaTemp = append(jumlahAnggotaPokjaTemp, bson.M{
 			jumlahPokja[i].(string): bson.M{
 				"jumlahAnggota":    len(jumlahAnggotaPokja),
 				"luasLahanGarapan": results[0]["luasLahan"],
+				"jumlahPetak":      len(jumlahPetakPokja),
+				"jumlahAndil":      len(jumlahAndilPokja),
+				"jumlahKaryawan":   jumlahKaryawanPokja,
 			},
 		})
+
 	}
 
 	HeaderDashboardData.JumlahPokja = int64(len(jumlahPokja))

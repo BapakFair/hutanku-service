@@ -12,7 +12,6 @@ import (
 	"hutanku-service/config"
 	helper "hutanku-service/helpers"
 	"hutanku-service/models"
-	"log"
 	"os"
 	"strconv"
 	"time"
@@ -41,6 +40,7 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 		objId, _ := primitive.ObjectIDFromHex(q)
 
 		filter = bson.M{
+			"role": 99,
 			"$or": []bson.M{
 				{
 					"_id": objId,
@@ -68,6 +68,10 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 				},
 			},
 		}
+	} else if q == "" {
+		filter = bson.M{
+			"role": 99,
+		}
 	}
 	data, err := db.Collection("users").Find(ctx, filter, findOptions)
 	if err != nil {
@@ -87,10 +91,11 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 	if err != nil {
 		return res, err
 	}
-	//totalDataCount := int(totalData) / perPage
-	//if totalDataCount%1 != 0 {
-	//	totalDataCount = totalDataCount + 1
-	//}
+	totalDataCount := int(totalData) / perPage
+	if totalDataCount%1 != 0 {
+		totalDataCount = totalDataCount + 1
+	}
+
 	// this line of code below to manual hash nik & kk data from string to hashed vice versa =======================
 	// don't forget to change context timeout 120 second per 1000 data
 	//err = helper.EncryptNikKk(dataFinal, ctx)
@@ -102,6 +107,7 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 	// ==================================================================================================
 
 	for i := 0; i < len(dataFinal); i++ {
+
 		secret := os.Getenv("RAHASIA_NEGARA")
 		NIK := fmt.Sprintf("%v", dataFinal[i]["nik"])
 		KK := fmt.Sprintf("%v", dataFinal[i]["kk"])
@@ -114,7 +120,7 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 			"userId": dataFinal[i]["_id"],
 		})
 		if err != nil {
-			log.Fatal(err)
+			return res, err
 		}
 		// ============================================================
 
@@ -122,6 +128,7 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 		matchStage := bson.D{
 			{"$match", bson.D{
 				{"userId", dataFinal[i]["_id"]},
+				{"pokja", bson.D{{"$exists", true}}},
 			}},
 		}
 		groupStage := bson.D{
@@ -134,11 +141,11 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 		}
 		cursor, err := db.Collection("petak").Aggregate(ctx, mongo.Pipeline{matchStage, groupStage})
 		if err != nil {
-			log.Fatal(err)
+			return res, err
 		}
 		var results []bson.M
 		if err = cursor.All(context.TODO(), &results); err != nil {
-			panic(err)
+			return res, err
 		}
 
 		// =============================================================
@@ -146,6 +153,7 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 		dataFinal[i]["kk"] = string(helper.Decrypt([]byte(KK), secret))
 		dataFinal[i]["jumlahPetak"] = jumlahPetakUser
 		dataFinal[i]["totalLahanGarapan"] = results[0]["luasLahan"]
+		//fmt.Println(i, " ini tersangka usernya: ", dataFinal[i], "-> ", results[0]["luasLahan"])
 		//dataFinal[i]["phoneNumber"] = string(helper.Decrypt([]byte(Phone), secret))
 		//dataFinal[i]["alamat"] = string(helper.Decrypt([]byte(Alamat), secret))
 	}

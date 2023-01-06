@@ -135,11 +135,23 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 			{"$group", bson.D{
 				{"_id", "$pokja"},
 				{"luasLahan", bson.D{
-					{"$sum", "$luasLahan"},
+					{"$sum", bson.D{
+						{"$toDecimal", "$luasLahan"},
+					}},
 				}},
 			}},
 		}
-		cursor, err := db.Collection("petak").Aggregate(ctx, mongo.Pipeline{matchStage, groupStage})
+
+		projectStage := bson.D{
+			{"$project", bson.D{
+				{"luasLahan", bson.D{
+					{"$round", bson.A{
+						"$luasLahan", 2,
+					}},
+				}},
+			}},
+		}
+		cursor, err := db.Collection("petak").Aggregate(ctx, mongo.Pipeline{matchStage, groupStage, projectStage})
 		if err != nil {
 			return res, err
 		}

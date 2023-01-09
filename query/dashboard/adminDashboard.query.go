@@ -2,13 +2,13 @@ package query
 
 import (
 	"context"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"hutanku-service/config"
 	"hutanku-service/models"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -68,56 +68,77 @@ func GetHeaderDashboardData(c echo.Context) (models.Response, error) {
 	jumlahPokja := <-chanJumlahPokja
 
 	var jumlahAnggotaPokjaTemp []bson.M
-	for i := 0; i < len(jumlahPokja); i++ {
-		jumlahAnggotaPokja, err := db.Collection("petak").Distinct(ctx, "userId", bson.M{"pokja": jumlahPokja[i]})
+	for _, pokja := range jumlahPokja {
+		wg := new(sync.WaitGroup)
+		wg.Add(4)
+		jumlahAnggotaPokja, err := db.Collection("petak").Distinct(ctx, "userId", bson.M{"pokja": pokja})
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		matchStage := bson.D{
-			{"$match", bson.D{
-				{"pokja", jumlahPokja[i]},
-			}},
-		}
-		groupStage := bson.D{
-			{"$group", bson.D{
-				{"_id", "$pokja"},
-				{"luasLahan", bson.D{
-					{"$sum", "$luasLahan"},
-				}},
-			}},
-		}
-		cursor, err := db.Collection("petak").Aggregate(ctx, mongo.Pipeline{matchStage, groupStage})
-		if err != nil {
-			log.Fatal(err)
-		}
 		var results []bson.M
-		if err = cursor.All(context.TODO(), &results); err != nil {
-			panic(err)
-		}
+		go func() {
+			defer wg.Done()
+			matchStage := bson.D{
+				{"$match", bson.D{
+					{"pokja", pokja},
+				}},
+			}
+			groupStage := bson.D{
+				{"$group", bson.D{
+					{"_id", "$pokja"},
+					{"luasLahan", bson.D{
+						{"$sum", "$luasLahan"},
+					}},
+				}},
+			}
+			cursor, err := db.Collection("petak").Aggregate(ctx, mongo.Pipeline{matchStage, groupStage})
+			if err != nil {
+				log.Fatal(err)
+			}
+			if err = cursor.All(context.TODO(), &results); err != nil {
+				panic(err)
+			}
+		}()
 
-		jumlahPetakPokja, err := db.Collection("petak").Distinct(ctx, "petak", bson.M{"pokja": jumlahPokja[i]})
-		if err != nil {
-			log.Fatal(err)
-		}
+		var jumlahPetakPokja []interface{}
+		go func() {
+			defer wg.Done()
+			res, err := db.Collection("petak").Distinct(ctx, "petak", bson.M{"pokja": pokja})
+			if err != nil {
+				log.Fatal(err)
+			}
+			jumlahPetakPokja = res
+		}()
 
-		jumlahAndilPokja, err := db.Collection("petak").Distinct(ctx, "andil", bson.M{"pokja": jumlahPokja[i]})
-		if err != nil {
-			log.Fatal(err)
-		}
+		var jumlahAndilPokja []interface{}
+		go func() {
+			defer wg.Done()
+			res, err := db.Collection("petak").Distinct(ctx, "andil", bson.M{"pokja": pokja})
+			if err != nil {
+				log.Fatal(err)
+			}
+			jumlahAndilPokja = res
+		}()
 
-		jumlahKaryawanPokja, err := db.Collection("users").CountDocuments(ctx, bson.M{"pokja": jumlahPokja[i], "role": 11})
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println("ini isinya jumlah karyawan", jumlahKaryawanPokja)
+		var jumlahKaryawanPokja int64
+		go func() {
+			defer wg.Done()
+			res, err := db.Collection("users").CountDocuments(ctx, bson.M{"pokja": pokja, "role": 11})
+			if err != nil {
+				log.Fatal(err)
+			}
+			jumlahKaryawanPokja = res
+		}()
+		wg.Wait()
+
 		jumlahAnggotaPokjaTemp = append(jumlahAnggotaPokjaTemp, bson.M{
-			jumlahPokja[i].(string): bson.M{
+			pokja.(string): bson.M{
 				"jumlahAnggota":    len(jumlahAnggotaPokja),
 				"luasLahanGarapan": results[0]["luasLahan"],
 				"jumlahPetak":      len(jumlahPetakPokja),
 				"jumlahAndil":      len(jumlahAndilPokja),
-				"jumlahKaryawan":   jumlahKaryawanPokja,
+				"jumlahKaryawan":   &jumlahKaryawanPokja,
 			},
 		})
 

@@ -10,4 +10,5 @@ type HeaderDashboardAdmin struct {
 	JumlahPetak           int64         `json:"jumlahPetak" bson:"jumlahPetak"`
 	JumlahAndil           int64         `json:"jumlahAndil" bson:"jumlahAndil"`
 	JumlahAnggotaPerPokja []bson.M      `json:"jumlahAnggotaPerPokja" bson:"jumlahAnggotaPerPokja"`
+	Location              []bson.M      `json:"location" bson:"location"`
 }

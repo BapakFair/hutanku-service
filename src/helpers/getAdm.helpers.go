@@ -45,3 +45,28 @@ func GetAdmDetail(data []bson.M, ctx context.Context) ([]bson.M, error) {
 	}
 	return nil, nil
 }
+
+func ChangeDesaToDesakel(data []bson.M, ctx context.Context) ([]bson.M, error) {
+	db, err := config.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	//for i, data := range data {
+	filterKecamatan := bson.M{}
+	update := bson.M{
+		"$rename": bson.M{
+			"desa": "desakel",
+		},
+	}
+
+	_, err = db.Collection("users").UpdateMany(ctx, filterKecamatan, update)
+	if err != nil {
+		return nil, err
+	}
+
+	//	fmt.Println("data ke : ", i, "isinya ini data : ", data)
+	//
+	//}
+	return nil, nil
+}

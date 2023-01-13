@@ -101,9 +101,11 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 	//err = helper.EncryptNikKk(dataFinal, ctx)
 	//err = helper.DecryptNikKk(dataFinal, ctx)
 	//err = helper.UpdateIdUserToPetak(dataFinal, ctx)
+	//hasil, err := helper.ChangeDesaToDesakel(dataFinal, ctx)
 	//if err != nil {
-	//	return models.Response{}, err
+	//	return res, err
 	//}
+	//fmt.Println(hasil)
 	// ==================================================================================================
 
 	for i := 0; i < len(dataFinal); i++ {

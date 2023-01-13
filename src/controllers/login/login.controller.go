@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/labstack/echo/v4"
-	"hutanku-service/models"
-	query "hutanku-service/query/login"
+	"hutanku-service/src/models"
+	"hutanku-service/src/query/login"
 	"log"
 	"net/http"
 )

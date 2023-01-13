@@ -2,11 +2,11 @@ package routes
 
 import (
 	"github.com/labstack/echo/v4"
-	"hutanku-service/middleware"
-	routesAdm "hutanku-service/routes/adm"
-	routesDashboard "hutanku-service/routes/dashboard"
-	routesLogin "hutanku-service/routes/login"
-	routesUsers "hutanku-service/routes/users"
+	"hutanku-service/src/middleware"
+	routesAdm "hutanku-service/src/routes/adm"
+	routesDashboard "hutanku-service/src/routes/dashboard"
+	routesLogin "hutanku-service/src/routes/login"
+	routesUsers "hutanku-service/src/routes/users"
 
 	"net/http"
 )

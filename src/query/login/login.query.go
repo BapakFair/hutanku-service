@@ -7,16 +7,16 @@ import (
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"hutanku-service/config"
-	helper "hutanku-service/helpers"
-	"hutanku-service/models"
+	"hutanku-service/src/helpers"
+	models2 "hutanku-service/src/models"
 	"log"
 	"os"
 	"time"
 )
 
-func CheckLogin(email, password string) (models.Response, error) {
-	var user models.Users
-	var res models.Response
+func CheckLogin(email, password string) (models2.Response, error) {
+	var user models2.Users
+	var res models2.Response
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 

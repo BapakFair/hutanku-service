@@ -2,8 +2,8 @@ package routes
 
 import (
 	"github.com/labstack/echo/v4"
-	user "hutanku-service/controllers/users"
-	"hutanku-service/middleware"
+	user "hutanku-service/src/controllers/users"
+	"hutanku-service/src/middleware"
 )
 
 func UserRoutes(e *echo.Echo) {

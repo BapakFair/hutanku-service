@@ -6,17 +6,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"hutanku-service/config"
-	helper "hutanku-service/helpers"
-	"hutanku-service/models"
+	"hutanku-service/src/helpers"
+	models2 "hutanku-service/src/models"
 	"log"
 	"os"
 	"time"
 )
 
-func UpdateUsers(c echo.Context) (models.Response, error) {
-	var res models.Response
+func UpdateUsers(c echo.Context) (models2.Response, error) {
+	var res models2.Response
 	id := c.QueryParam("id")
-	var reqBody models.Users
+	var reqBody models2.Users
 	if err := c.Bind(&reqBody); err != nil {
 		log.Fatal(err.Error())
 	}

@@ -7,15 +7,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"hutanku-service/config"
-	"hutanku-service/models"
+	models2 "hutanku-service/src/models"
 	"log"
 	"sync"
 	"time"
 )
 
-func GetHeaderDashboardData(c echo.Context) (models.Response, error) {
-	var res models.Response
-	var HeaderDashboardData models.HeaderDashboardAdmin
+func GetHeaderDashboardData(c echo.Context) (models2.Response, error) {
+	var res models2.Response
+	var HeaderDashboardData models2.HeaderDashboardAdmin
 	chanJumlahPokja := make(chan []interface{})
 	chanJumlahAnggota := make(chan int64)
 	chanJumlahPetak := make(chan int64)

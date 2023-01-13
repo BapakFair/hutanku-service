@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"hutanku-service/config"
-	"hutanku-service/models"
+	"hutanku-service/src/models"
 	"time"
 )
 

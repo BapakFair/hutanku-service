@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/labstack/echo/v4"
-	query "hutanku-service/query/adm"
+	"hutanku-service/src/query/adm"
 	"net/http"
 )
 

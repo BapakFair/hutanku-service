@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"github.com/labstack/echo/v4"
-	query "hutanku-service/query/users"
+	query2 "hutanku-service/src/query/users"
 	"net/http"
 )
 
 func CreateUsers(c echo.Context) error {
-	result, err := query.CreateUsers(c)
+	result, err := query2.CreateUsers(c)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -23,7 +23,7 @@ func GetUsers(c echo.Context) error {
 	//noAnggota := claims["nomorAnggota"].(float64)
 	// =========================================
 
-	result, err := query.GetUsers(c)
+	result, err := query2.GetUsers(c)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
@@ -31,7 +31,7 @@ func GetUsers(c echo.Context) error {
 }
 
 func UpdateUsers(c echo.Context) error {
-	result, err := query.UpdateUsers(c)
+	result, err := query2.UpdateUsers(c)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -40,7 +40,7 @@ func UpdateUsers(c echo.Context) error {
 }
 
 func ForgotPasswordUsers(c echo.Context) error {
-	result, err := query.ForgotPassword(c)
+	result, err := query2.ForgotPassword(c)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -49,7 +49,7 @@ func ForgotPasswordUsers(c echo.Context) error {
 }
 
 func ResetPasswordUser(c echo.Context) error {
-	result, err := query.ResetPassword(c)
+	result, err := query2.ResetPassword(c)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}

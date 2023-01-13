@@ -4,15 +4,15 @@ import (
 	"context"
 	"github.com/labstack/echo/v4"
 	"hutanku-service/config"
-	helper "hutanku-service/helpers"
-	"hutanku-service/models"
+	helper2 "hutanku-service/src/helpers"
+	models2 "hutanku-service/src/models"
 	"os"
 	"time"
 )
 
-func CreateUsers(c echo.Context) (models.Response, error) {
-	var res models.Response
-	var reqBody models.Users
+func CreateUsers(c echo.Context) (models2.Response, error) {
+	var res models2.Response
+	var reqBody models2.Users
 	if err := c.Bind(&reqBody); err != nil {
 		return res, err
 	}
@@ -25,13 +25,13 @@ func CreateUsers(c echo.Context) (models.Response, error) {
 	defer cancel()
 
 	secret := os.Getenv("RAHASIA_NEGARA")
-	passwordHashed, _ := helper.HashPassword(reqBody.Password)
-	NikEncrypted := helper.Encrypt([]byte(reqBody.NIK), secret)
-	KkEncrypted := helper.Encrypt([]byte(reqBody.KK), secret)
-	PhoneNumberEncrypted := helper.Encrypt([]byte(reqBody.PhoneNumber), secret)
-	AlamatEncrypted := helper.Encrypt([]byte(reqBody.Alamat), secret)
+	passwordHashed, _ := helper2.HashPassword(reqBody.Password)
+	NikEncrypted := helper2.Encrypt([]byte(reqBody.NIK), secret)
+	KkEncrypted := helper2.Encrypt([]byte(reqBody.KK), secret)
+	PhoneNumberEncrypted := helper2.Encrypt([]byte(reqBody.PhoneNumber), secret)
+	AlamatEncrypted := helper2.Encrypt([]byte(reqBody.Alamat), secret)
 
-	data, err := db.Collection("users").InsertOne(ctx, models.Users{
+	data, err := db.Collection("users").InsertOne(ctx, models2.Users{
 		FullName:     reqBody.FullName,
 		NomorAnggota: reqBody.NomorAnggota,
 		Email:        reqBody.Email,

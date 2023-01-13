@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/labstack/echo/v4"
-	login "hutanku-service/controllers/login"
+	login "hutanku-service/src/controllers/login"
 )
 
 func LoginRoute(e *echo.Echo) {

@@ -8,16 +8,16 @@ import (
 	"github.com/mailgun/mailgun-go/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"hutanku-service/config"
-	helper "hutanku-service/helpers"
-	"hutanku-service/models"
+	"hutanku-service/src/helpers"
+	models2 "hutanku-service/src/models"
 	"log"
 	"os"
 	"time"
 )
 
-func ForgotPassword(c echo.Context) (models.Response, error) {
-	var res models.Response
-	var reqBody models.Users
+func ForgotPassword(c echo.Context) (models2.Response, error) {
+	var res models2.Response
+	var reqBody models2.Users
 	if err := c.Bind(&reqBody); err != nil {
 		log.Fatal(err.Error())
 	}
@@ -73,10 +73,10 @@ func ForgotPassword(c echo.Context) (models.Response, error) {
 	return res, nil
 }
 
-func ResetPassword(c echo.Context) (models.Response, error) {
-	var res models.Response
-	var users models.Users
-	var reqBody models.ResetPassword
+func ResetPassword(c echo.Context) (models2.Response, error) {
+	var res models2.Response
+	var users models2.Users
+	var reqBody models2.ResetPassword
 	if err := c.Bind(&reqBody); err != nil {
 		log.Fatal(err.Error())
 	}

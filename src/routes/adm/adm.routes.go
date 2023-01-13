@@ -2,8 +2,8 @@ package routes
 
 import (
 	"github.com/labstack/echo/v4"
-	adm "hutanku-service/controllers/adm"
-	"hutanku-service/middleware"
+	adm "hutanku-service/src/controllers/adm"
+	"hutanku-service/src/middleware"
 )
 
 func AdmRoutes(e *echo.Echo) {

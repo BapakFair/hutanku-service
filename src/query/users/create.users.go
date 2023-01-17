@@ -2,7 +2,9 @@ package query
 
 import (
 	"context"
+	"errors"
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"hutanku-service/config"
 	"hutanku-service/src/helpers"
@@ -55,18 +57,31 @@ func CreateUsers(c echo.Context) (models.Response, error) {
 		return res, err
 	}
 
-	for _, dataPetak := range reqBodyUser.DataPetak {
-		_, err := db.Collection("petak").InsertOne(ctx, models.Petak{
-			UserId:    dataUser.InsertedID.(primitive.ObjectID),
-			Petak:     dataPetak["petak"].(string),
-			Andil:     dataPetak["andil"].(string),
-			Pokja:     dataPetak["pokja"].(string),
-			LuasLahan: dataPetak["luasLahan"].(float64),
-		})
-		if err != nil {
-			return res, err
-		}
+	if len(reqBodyUser.DataPetak) != 0 {
+		for _, dataPetak := range reqBodyUser.DataPetak {
+			checkPetak, err := db.Collection("petak").Find(ctx, bson.M{
+				"petak": dataPetak["petak"],
+				"andil": dataPetak["andil"],
+			})
+			if err != nil {
+				return res, err
+			}
+			if checkPetak != nil {
+				err := errors.New("silahkan pilih petak yang lain, karena petak ini sudah ada pemiliknya")
+				return res, err
+			}
 
+			_, err = db.Collection("petak").InsertOne(ctx, models.Petak{
+				UserId:    dataUser.InsertedID.(primitive.ObjectID),
+				Petak:     dataPetak["petak"].(string),
+				Andil:     dataPetak["andil"].(string),
+				Pokja:     dataPetak["pokja"].(string),
+				LuasLahan: dataPetak["luasLahan"].(float64),
+			})
+			if err != nil {
+				return res, err
+			}
+		}
 	}
 
 	res.Message = "Insert data success"

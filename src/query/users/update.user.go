@@ -2,21 +2,22 @@ package query
 
 import (
 	"context"
+	"errors"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"hutanku-service/config"
 	"hutanku-service/src/helpers"
-	models2 "hutanku-service/src/models"
+	"hutanku-service/src/models"
 	"log"
 	"os"
 	"time"
 )
 
-func UpdateUsers(c echo.Context) (models2.Response, error) {
-	var res models2.Response
+func UpdateUsers(c echo.Context) (models.Response, error) {
+	var res models.Response
 	id := c.QueryParam("id")
-	var reqBody models2.Users
+	var reqBody models.Users
 	if err := c.Bind(&reqBody); err != nil {
 		log.Fatal(err.Error())
 	}
@@ -62,6 +63,36 @@ func UpdateUsers(c echo.Context) (models2.Response, error) {
 	result, err := db.Collection("users").UpdateOne(ctx, filter, update)
 	if err != nil {
 		log.Fatal(err.Error())
+	}
+
+	if len(reqBody.DataPetak) != 0 {
+		for _, dataPetak := range reqBody.DataPetak {
+			checkPetak, err := db.Collection("petak").Find(ctx, bson.M{
+				"petak": dataPetak["petak"],
+				"andil": dataPetak["andil"],
+			})
+			if err != nil {
+				return res, err
+			}
+			if checkPetak != nil {
+				err := errors.New("silahkan pilih petak dan andil yang lain, karena petak ini sudah ada pemiliknya")
+				return res, err
+			}
+
+			filterLahan := bson.M{"userId": objId}
+			updateLahan := bson.M{
+				"$set": bson.M{
+					"petak":     dataPetak["petak"].(string),
+					"andil":     dataPetak["andil"].(string),
+					"pokja":     dataPetak["pokja"].(string),
+					"luasLahan": dataPetak["luasLahan"].(float64),
+				},
+			}
+			_, err = db.Collection("petak").UpdateOne(ctx, filterLahan, updateLahan)
+			if err != nil {
+				return res, err
+			}
+		}
 	}
 
 	res.Message = "Updated data success"

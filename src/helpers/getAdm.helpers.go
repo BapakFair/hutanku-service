@@ -2,7 +2,6 @@ package helper
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"hutanku-service/config"
 )
@@ -39,8 +38,6 @@ func GetAdmDetail(data []bson.M, ctx context.Context) ([]bson.M, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		fmt.Println("data ke : ", i, "ini isi data propinsi : ", dataKecamatan)
 
 	}
 	return nil, nil

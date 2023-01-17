@@ -1,6 +1,9 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type Users struct {
 	ID           primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
@@ -24,6 +27,7 @@ type Users struct {
 	Pokja        string             `json:"pokja" bson:"pokja"`
 	Role         int                `json:"role" bson:"role"`
 	ResetToken   string             `json:"resetToken" bson:"resetToken"`
+	DataPetak    []bson.M           `json:"dataPetak" bson:"dataPetak"`
 }
 
 type QueryGetUsers struct {

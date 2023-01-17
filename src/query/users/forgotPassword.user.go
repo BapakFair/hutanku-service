@@ -28,7 +28,7 @@ func ForgotPassword(c echo.Context) (models2.Response, error) {
 	domainBase := os.Getenv("DOMAIN_BASE")
 	mg := mailgun.NewMailgun(domainMail, privateApi)
 	//====================
-	fmt.Println("test key : ", privateApi)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 	db, err := config.Connect()

@@ -55,6 +55,7 @@ func UpdateUsers(c echo.Context) (models2.Response, error) {
 			"kk":           string(KkEncrypted),
 			"province":     reqBody.Province,
 			"pokja":        reqBody.Pokja,
+			"role":         reqBody.Role,
 		},
 	}
 

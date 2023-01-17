@@ -83,7 +83,6 @@ func DecryptNikKk(dataFinal []bson.M, ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println("data ke : ", i)
 
 	}
 	return nil

@@ -3,17 +3,18 @@ package query
 import (
 	"context"
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"hutanku-service/config"
-	helper2 "hutanku-service/src/helpers"
-	models2 "hutanku-service/src/models"
+	"hutanku-service/src/helpers"
+	"hutanku-service/src/models"
 	"os"
 	"time"
 )
 
-func CreateUsers(c echo.Context) (models2.Response, error) {
-	var res models2.Response
-	var reqBody models2.Users
-	if err := c.Bind(&reqBody); err != nil {
+func CreateUsers(c echo.Context) (models.Response, error) {
+	var res models.Response
+	var reqBodyUser models.Users
+	if err := c.Bind(&reqBodyUser); err != nil {
 		return res, err
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -25,36 +26,51 @@ func CreateUsers(c echo.Context) (models2.Response, error) {
 	defer cancel()
 
 	secret := os.Getenv("RAHASIA_NEGARA")
-	passwordHashed, _ := helper2.HashPassword(reqBody.Password)
-	NikEncrypted := helper2.Encrypt([]byte(reqBody.NIK), secret)
-	KkEncrypted := helper2.Encrypt([]byte(reqBody.KK), secret)
-	PhoneNumberEncrypted := helper2.Encrypt([]byte(reqBody.PhoneNumber), secret)
-	AlamatEncrypted := helper2.Encrypt([]byte(reqBody.Alamat), secret)
+	passwordHashed, _ := helper.HashPassword(reqBodyUser.Password)
+	NikEncrypted := helper.Encrypt([]byte(reqBodyUser.NIK), secret)
+	KkEncrypted := helper.Encrypt([]byte(reqBodyUser.KK), secret)
+	PhoneNumberEncrypted := helper.Encrypt([]byte(reqBodyUser.PhoneNumber), secret)
+	AlamatEncrypted := helper.Encrypt([]byte(reqBodyUser.Alamat), secret)
 
-	data, err := db.Collection("users").InsertOne(ctx, models2.Users{
-		FullName:     reqBody.FullName,
-		NomorAnggota: reqBody.NomorAnggota,
-		Email:        reqBody.Email,
+	dataUser, err := db.Collection("users").InsertOne(ctx, models.Users{
+		FullName:     reqBodyUser.FullName,
+		NomorAnggota: reqBodyUser.NomorAnggota,
+		Email:        reqBodyUser.Email,
 		Password:     passwordHashed,
 		PhoneNumber:  string(PhoneNumberEncrypted),
-		Dusun:        reqBody.Dusun,
-		DesaKel:      reqBody.DesaKel,
-		RT:           reqBody.RT,
-		RW:           reqBody.RW,
-		Kecamatan:    reqBody.Kecamatan,
-		KotaKab:      reqBody.KotaKab,
+		Dusun:        reqBodyUser.Dusun,
+		DesaKel:      reqBodyUser.DesaKel,
+		RT:           reqBodyUser.RT,
+		RW:           reqBodyUser.RW,
+		Kecamatan:    reqBodyUser.Kecamatan,
+		KotaKab:      reqBodyUser.KotaKab,
 		Alamat:       string(AlamatEncrypted),
 		NIK:          string(NikEncrypted),
 		KK:           string(KkEncrypted),
-		Province:     reqBody.Province,
-		Pokja:        reqBody.Pokja,
+		Province:     reqBodyUser.Province,
+		Pokja:        reqBodyUser.Pokja,
+		Role:         reqBodyUser.Role,
 	})
 	if err != nil {
 		return res, err
 	}
 
+	for _, dataPetak := range reqBodyUser.DataPetak {
+		_, err := db.Collection("petak").InsertOne(ctx, models.Petak{
+			UserId:    dataUser.InsertedID.(primitive.ObjectID),
+			Petak:     dataPetak["petak"].(string),
+			Andil:     dataPetak["andil"].(string),
+			Pokja:     dataPetak["pokja"].(string),
+			LuasLahan: dataPetak["luasLahan"].(float64),
+		})
+		if err != nil {
+			return res, err
+		}
+
+	}
+
 	res.Message = "Insert data success"
-	res.Data = data
+	res.Data = dataUser
 
 	return res, nil
 }

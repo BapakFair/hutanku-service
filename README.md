@@ -1,6 +1,7 @@
 # hutanku-service
 
 17 Januari 2023
+version 0.5.1
 * create and update lahan
 * add new routes get lahan by userId
 

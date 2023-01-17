@@ -5,6 +5,7 @@ import (
 	"hutanku-service/src/middleware"
 	routesAdm "hutanku-service/src/routes/adm"
 	routesDashboard "hutanku-service/src/routes/dashboard"
+	routesLahan "hutanku-service/src/routes/lahan"
 	routesLogin "hutanku-service/src/routes/login"
 	routesUsers "hutanku-service/src/routes/users"
 
@@ -26,6 +27,7 @@ func Init() *echo.Echo {
 	routesLogin.LoginRoute(e)
 	routesAdm.AdmRoutes(e)
 	routesDashboard.DashboardAdminRoutes(e)
+	routesLahan.LahanRoutes(e)
 
 	return e
 }

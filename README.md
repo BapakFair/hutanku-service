@@ -1,13 +1,13 @@
 # hutanku-service
 
 19 Januari 2023
-version 0.5.2
-* add check email availability
-* add manual check error on create user
-
 version 0.5.3
 * add condition on update same petak data
 * add condition when user don't have any data on petak
+
+version 0.5.2
+* add check email availability
+* add manual check error on create user
 
 17 Januari 2023
 version 0.5.1

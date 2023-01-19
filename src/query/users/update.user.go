@@ -3,7 +3,6 @@ package query
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -51,13 +50,13 @@ func UpdateUsers(c echo.Context) (models.Response, error) {
 	if err := checkEmail.All(ctx, &data); err != nil {
 		return res, err
 	}
-	fmt.Println(data)
+
 	if len(data) != 0 {
 		err := errors.New("silahkan gunakan email yang lain, karena email ini sudah ada pemiliknya")
 		return res, err
 	}
 	// ================================================
-	
+
 	filter := bson.M{"_id": objId}
 	update := bson.M{
 		"$set": bson.M{
@@ -94,8 +93,10 @@ func UpdateUsers(c echo.Context) (models.Response, error) {
 			if err := checkPetak.All(ctx, &data); err != nil {
 				return res, err
 			}
+			dataDbPetakUserId := data[0]["userId"]
+			dataPayloadUserId, _ := primitive.ObjectIDFromHex(dataPetak["userId"].(string))
 
-			if len(data) != 0 {
+			if len(data) != 0 && (dataDbPetakUserId != dataPayloadUserId) {
 				err := errors.New("silahkan pilih petak yang lain, karena petak ini sudah ada pemiliknya")
 				return res, err
 			}

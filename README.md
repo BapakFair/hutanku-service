@@ -1,5 +1,9 @@
 # hutanku-service
 
+19 Januari 2023
+version 0.5.2
+* add check email availability
+
 17 Januari 2023
 version 0.5.1
 * create and update lahan

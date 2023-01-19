@@ -115,58 +115,76 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 		KK := fmt.Sprintf("%v", dataFinal[i]["kk"])
 		//Phone := fmt.Sprintf("%v", dataFinal[i]["phoneNumber"])
 		//Alamat := fmt.Sprintf("%v", dataFinal[i]["alamat"])
-
-		// menghitung jumlah petak yang dimiliki anggota =============
-		jumlahPetakUser, err := db.Collection("petak").CountDocuments(ctx, bson.M{
-			"pokja":  dataFinal[i]["pokja"],
-			"userId": dataFinal[i]["_id"],
-		})
-		if err != nil {
-			return res, err
-		}
-		// ============================================================
-
-		// menghitung total luas lahan garapan ========================
-		matchStage := bson.D{
-			{"$match", bson.D{
-				{"userId", dataFinal[i]["_id"]},
-				{"pokja", bson.D{{"$exists", true}}},
-			}},
-		}
-		groupStage := bson.D{
-			{"$group", bson.D{
-				{"_id", "$pokja"},
-				{"luasLahan", bson.D{
-					{"$sum", bson.D{
-						{"$toDecimal", "$luasLahan"},
-					}},
-				}},
-			}},
-		}
-
-		projectStage := bson.D{
-			{"$project", bson.D{
-				{"luasLahan", bson.D{
-					{"$round", bson.A{
-						"$luasLahan", 2,
-					}},
-				}},
-			}},
-		}
-		cursor, err := db.Collection("petak").Aggregate(ctx, mongo.Pipeline{matchStage, groupStage, projectStage})
-		if err != nil {
-			return res, err
-		}
-		var results []bson.M
-		if err = cursor.All(context.TODO(), &results); err != nil {
-			return res, err
-		}
-
-		// =============================================================
 		dataFinal[i]["nik"] = string(helper.Decrypt([]byte(NIK), secret))
 		dataFinal[i]["kk"] = string(helper.Decrypt([]byte(KK), secret))
-		dataFinal[i]["jumlahPetak"] = jumlahPetakUser
-		dataFinal[i]["totalLahanGarapan"] = results[0]["luasLahan"]
+
+		checkPetak, err := db.Collection("petak").Find(ctx, bson.M{"userId": dataFinal[i]["_id"]})
+		if err != nil {
+			return res, err
+		}
+
+		var data []bson.M
+		if err := checkPetak.All(ctx, &data); err != nil {
+			err := errors.New("binding cursor gagal")
+			return res, err
+		}
+
+		if len(data) == 0 {
+			dataFinal[i]["jumlahPetak"] = 0
+			dataFinal[i]["totalLahanGarapan"] = 0
+		} else {
+			// menghitung jumlah petak yang dimiliki anggota =============
+			jumlahPetakUser, err := db.Collection("petak").CountDocuments(ctx, bson.M{
+				"pokja":  dataFinal[i]["pokja"],
+				"userId": dataFinal[i]["_id"],
+			})
+			if err != nil {
+				return res, err
+			}
+			// ============================================================
+
+			// menghitung total luas lahan garapan ========================
+			matchStage := bson.D{
+				{"$match", bson.D{
+					{"userId", dataFinal[i]["_id"]},
+					{"pokja", bson.D{{"$exists", true}}},
+				}},
+			}
+			groupStage := bson.D{
+				{"$group", bson.D{
+					{"_id", "$pokja"},
+					{"luasLahan", bson.D{
+						{"$sum", bson.D{
+							{"$toDecimal", "$luasLahan"},
+						}},
+					}},
+				}},
+			}
+
+			projectStage := bson.D{
+				{"$project", bson.D{
+					{"luasLahan", bson.D{
+						{"$round", bson.A{
+							"$luasLahan", 2,
+						}},
+					}},
+				}},
+			}
+			cursor, err := db.Collection("petak").Aggregate(ctx, mongo.Pipeline{matchStage, groupStage, projectStage})
+			if err != nil {
+				return res, err
+			}
+			var results []bson.M
+			if err = cursor.All(context.TODO(), &results); err != nil {
+				return res, err
+			}
+
+			// =============================================================
+
+			dataFinal[i]["jumlahPetak"] = jumlahPetakUser
+			dataFinal[i]["totalLahanGarapan"] = results[0]["luasLahan"]
+		}
+
 		//fmt.Println(i, " ini tersangka usernya: ", dataFinal[i], "-> ", results[0]["luasLahan"])
 		//dataFinal[i]["phoneNumber"] = string(helper.Decrypt([]byte(Phone), secret))
 		//dataFinal[i]["alamat"] = string(helper.Decrypt([]byte(Alamat), secret))

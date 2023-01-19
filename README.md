@@ -3,6 +3,7 @@
 19 Januari 2023
 version 0.5.2
 * add check email availability
+* add manual check error on create user
 
 17 Januari 2023
 version 0.5.1

@@ -3,6 +3,7 @@ package query
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -33,6 +34,25 @@ func CreateUsers(c echo.Context) (models.Response, error) {
 	KkEncrypted := helper.Encrypt([]byte(reqBodyUser.KK), secret)
 	PhoneNumberEncrypted := helper.Encrypt([]byte(reqBodyUser.PhoneNumber), secret)
 	AlamatEncrypted := helper.Encrypt([]byte(reqBodyUser.Alamat), secret)
+
+	// check email exist =============================
+	checkEmail, err := db.Collection("users").Find(ctx, bson.M{
+		"email": reqBodyUser.Email,
+	})
+	if err != nil {
+		return res, err
+	}
+
+	var data []bson.M
+	if err := checkEmail.All(ctx, &data); err != nil {
+		return res, err
+	}
+	fmt.Println(data)
+	if len(data) != 0 {
+		err := errors.New("silahkan gunakan email yang lain, karena email ini sudah ada pemiliknya")
+		return res, err
+	}
+	// ================================================
 
 	dataUser, err := db.Collection("users").InsertOne(ctx, models.Users{
 		FullName:     reqBodyUser.FullName,
@@ -66,7 +86,13 @@ func CreateUsers(c echo.Context) (models.Response, error) {
 			if err != nil {
 				return res, err
 			}
-			if checkPetak != nil {
+
+			var data []bson.M
+			if err := checkPetak.All(ctx, &data); err != nil {
+				return res, err
+			}
+			fmt.Println(data)
+			if len(data) != 0 {
 				err := errors.New("silahkan pilih petak yang lain, karena petak ini sudah ada pemiliknya")
 				return res, err
 			}

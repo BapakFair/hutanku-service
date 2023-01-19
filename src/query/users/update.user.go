@@ -3,6 +3,7 @@ package query
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -38,7 +39,25 @@ func UpdateUsers(c echo.Context) (models.Response, error) {
 	AlamatEncrypted := helper.Encrypt([]byte(reqBody.Alamat), secret)
 
 	objId, _ := primitive.ObjectIDFromHex(id)
+	// check email exist =============================
+	checkEmail, err := db.Collection("users").Find(ctx, bson.M{
+		"email": reqBody.Email,
+	})
+	if err != nil {
+		return res, err
+	}
 
+	var data []bson.M
+	if err := checkEmail.All(ctx, &data); err != nil {
+		return res, err
+	}
+	fmt.Println(data)
+	if len(data) != 0 {
+		err := errors.New("silahkan gunakan email yang lain, karena email ini sudah ada pemiliknya")
+		return res, err
+	}
+	// ================================================
+	
 	filter := bson.M{"_id": objId}
 	update := bson.M{
 		"$set": bson.M{
@@ -71,11 +90,13 @@ func UpdateUsers(c echo.Context) (models.Response, error) {
 				"petak": dataPetak["petak"],
 				"andil": dataPetak["andil"],
 			})
-			if err != nil {
+			var data []bson.M
+			if err := checkPetak.All(ctx, &data); err != nil {
 				return res, err
 			}
-			if checkPetak != nil {
-				err := errors.New("silahkan pilih petak dan andil yang lain, karena petak ini sudah ada pemiliknya")
+
+			if len(data) != 0 {
+				err := errors.New("silahkan pilih petak yang lain, karena petak ini sudah ada pemiliknya")
 				return res, err
 			}
 

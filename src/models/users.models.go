@@ -15,11 +15,11 @@ type Users struct {
 	Password     string             `json:"password" bson:"password" validate:"required"`
 	PhoneNumber  string             `json:"phoneNumber" bson:"phoneNumber" validate:"required"`
 	Dusun        string             `json:"dusun" bson:"dusun"`
-	DesaKel      string             `json:"desa" bson:"desa"`
+	DesaKel      string             `json:"desakel" bson:"desakel"`
 	RT           int                `json:"rt" bson:"rt"`
 	RW           int                `json:"rw" bson:"rw"`
 	Kecamatan    string             `json:"kecamatan" bson:"kecamatan"`
-	KotaKab      string             `json:"kota" bson:"kota"`
+	KotaKab      string             `json:"kotakab" bson:"kotakab"`
 	Alamat       string             `json:"alamat" bson:"alamat"`
 	NIK          string             `json:"nik" bson:"nik"`
 	KK           string             `json:"kk" bson:"kk"`

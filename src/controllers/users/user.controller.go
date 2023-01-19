@@ -8,8 +8,8 @@ import (
 
 func CreateUsers(c echo.Context) error {
 	result, err := query2.CreateUsers(c)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	if err.Data != nil {
+		return c.JSON(err.Status, map[string]string{"message": err.Data.Error()})
 	}
 
 	return c.JSON(http.StatusCreated, result)

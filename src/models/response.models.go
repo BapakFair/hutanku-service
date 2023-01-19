@@ -11,3 +11,8 @@ type ResponseWithPagination struct {
 	Page      int         `json:"page" bson:"page"`
 	TotalData int         `json:"totalData" bson:"totalData"`
 }
+
+type ResError struct {
+	Status int   `json:"status"`
+	Data   error `json:"data"`
+}

@@ -12,23 +12,25 @@ import (
 	"hutanku-service/config"
 	"hutanku-service/src/helpers"
 	"hutanku-service/src/models"
+	"log"
 	"os"
 	"strconv"
 	"time"
 )
 
-// get users by query string "_id", "pokja", "fullName", "nomorAnggota".
 func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
+	// get users by query string "_id", "pokja", "fullName", "nomorAnggota".
+
 	var res models.ResponseWithPagination
 	dataLoop := make(chan []bson.M)
 	totalData := make(chan int)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	db, err := config.Connect()
 	if err != nil {
 		return res, err
 	}
-
-	defer cancel()
 
 	filter := bson.M{}
 	findOptions := options.Find()
@@ -80,10 +82,10 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 		}
 		data, err := db.Collection("users").Find(ctx, filter, findOptions)
 		if err != nil {
-			return
+			log.Fatal(err)
 		}
 		if err := data.All(ctx, &dataFinal); err != nil {
-			return
+			log.Fatal(err)
 		}
 		dataLoop <- dataFinal
 	}()
@@ -98,7 +100,7 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 		defer close(totalData)
 		totalDataDB, err := db.Collection("users").CountDocuments(ctx, filter)
 		if err != nil {
-			return
+			log.Fatal(err)
 		}
 		totalDataCount := int(totalDataDB) / perPage
 		if totalDataCount%1 != 0 {
@@ -177,7 +179,7 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 					"userId": data["_id"],
 				})
 				if err != nil {
-					return
+					log.Fatal(err)
 				}
 				jumlahPetak <- jumlahPetakUser
 			}()
@@ -215,11 +217,11 @@ func GetUsers(c echo.Context) (models.ResponseWithPagination, error) {
 				}
 				cursor, err := db.Collection("petak").Aggregate(ctx, mongo.Pipeline{matchStage, groupStage, projectStage})
 				if err != nil {
-					return
+					log.Fatal(err)
 				}
 				var results []bson.M
 				if err = cursor.All(context.TODO(), &results); err != nil {
-					return
+					log.Fatal(err)
 				}
 				lahanGarapan <- results
 			}()

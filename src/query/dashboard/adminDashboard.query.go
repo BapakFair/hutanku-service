@@ -2,20 +2,19 @@ package query
 
 import (
 	"context"
-	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"hutanku-service/config"
-	models2 "hutanku-service/src/models"
+	"hutanku-service/src/models"
 	"log"
 	"sync"
 	"time"
 )
 
-func GetHeaderDashboardData(c echo.Context) (models2.Response, error) {
-	var res models2.Response
-	var HeaderDashboardData models2.HeaderDashboardAdmin
+func GetHeaderDashboardData() (models.Response, error) {
+	var res models.Response
+	var HeaderDashboardData models.HeaderDashboardAdmin
 	chanJumlahPokja := make(chan []interface{})
 	chanJumlahAnggota := make(chan int64)
 	chanJumlahPetak := make(chan int64)
@@ -23,12 +22,13 @@ func GetHeaderDashboardData(c echo.Context) (models2.Response, error) {
 	chanLocation := make(chan []bson.M)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	db, err := config.Connect()
 	if err != nil {
 		return res, err
 	}
 
-	defer cancel()
 	go func() {
 		jumlahPokja, err := db.Collection("petak").Distinct(ctx, "pokja", bson.M{})
 		if err != nil {
@@ -221,13 +221,13 @@ func GetHeaderDashboardData(c echo.Context) (models2.Response, error) {
 		go func() {
 			defer wg.Done()
 			matchStage := bson.D{
-				{"$match", bson.D{
-					{"petak", bson.D{
+				{Key: "$match", Value: bson.D{
+					{Key: "petak", Value: bson.D{
 						{
-							"$regex",
-							primitive.Regex{
-								petak.(string),
-								"i",
+							Key: "$regex",
+							Value: primitive.Regex{
+								Pattern: petak.(string),
+								Options: "i",
 							},
 						},
 					}},
@@ -271,13 +271,13 @@ func GetHeaderDashboardData(c echo.Context) (models2.Response, error) {
 		go func() {
 			defer wg.Done()
 			matchStage := bson.D{
-				{"$match", bson.D{
-					{"petak", bson.D{
+				{Key: "$match", Value: bson.D{
+					{Key: "petak", Value: bson.D{
 						{
-							"$regex",
-							primitive.Regex{
-								petak.(string),
-								"i",
+							Key: "$regex",
+							Value: primitive.Regex{
+								Pattern: petak.(string),
+								Options: "i",
 							},
 						},
 					}},
